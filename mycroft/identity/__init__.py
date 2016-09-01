@@ -23,7 +23,7 @@ from mycroft.filesystem import FileSystemAccess
 
 class DeviceIdentity(object):
     def __init__(self, **kwargs):
-        self.device_id = kwargs.get('device_id', "")
+        self.uuid = kwargs.get('uuid', "")
         self.token = kwargs.get('token', "")
 
 

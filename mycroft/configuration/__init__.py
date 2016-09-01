@@ -19,7 +19,6 @@ import json
 from genericpath import exists, isfile
 from os.path import join, dirname, expanduser
 
-from mycroft.api import DeviceApi
 from mycroft.util.log import getLogger
 
 __author__ = 'seanfitz, jdorleans'
@@ -110,7 +109,8 @@ class RemoteConfiguration(object):
 
         if auto_update:
             try:
-                setting = DeviceApi(config).find_setting().json()
+                from mycroft.api import DeviceApi
+                setting = DeviceApi().find_setting()
                 RemoteConfiguration.__load_attributes(config, setting)
             except Exception as e:
                 logger.error(

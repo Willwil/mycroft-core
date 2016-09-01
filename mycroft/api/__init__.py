@@ -1,11 +1,16 @@
 import requests
+from requests import HTTPError
 
+from mycroft.configuration import ConfigurationManager
 from mycroft.identity import IdentityManager
+
+__author__ = 'jdorleans'
 
 
 class Api(object):
-    def __init__(self, path, config):
+    def __init__(self, path):
         self.path = path
+        config = ConfigurationManager().get()
         config_server = config.get("server")
         self.url = config_server.get("url")
         self.version = config_server.get("version")
@@ -16,7 +21,20 @@ class Api(object):
         headers = self.build_headers(params)
         body = self.build_body(params)
         url = self.build_url(params)
-        return requests.request(method, url, headers=headers, data=body)
+        response = requests.request(method, url, headers=headers, data=body)
+        return self.get_response(response)
+
+    @staticmethod
+    def get_response(response):
+        try:
+            data = response.json()
+        except:
+            data = response.text
+
+        if 200 <= response.status_code < 300:
+            return data
+        else:
+            raise HTTPError(data, response=response)
 
     def build_headers(self, params):
         headers = params.get("headers", {})
@@ -49,9 +67,20 @@ class Api(object):
 
 
 class DeviceApi(Api):
-    def __init__(self, config):
-        super(DeviceApi, self).__init__("device", config)
+    def __init__(self):
+        super(DeviceApi, self).__init__("device")
+
+    def get_code(self, state):
+        return self.request({
+            "path": "/code?state=" + state
+        })
+
+    def find(self):
+        return self.request({
+            "path": "/" + self.identity.uuid
+        })
 
     def find_setting(self):
-        params = {"path": "/" + self.identity.device_id + "/setting"}
-        return self.request(params)
+        return self.request({
+            "path": "/" + self.identity.uuid + "/setting"
+        })
