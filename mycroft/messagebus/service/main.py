@@ -30,7 +30,7 @@ settings = {
 
 def validate_param(value, name):
     if not value:
-        raise ValueError("Missing or empty %s in mycroft.ini "
+        raise ValueError("Missing or empty %s in mycroft.conf "
                          "[messagebus_service] section", name)
 
 

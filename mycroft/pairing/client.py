@@ -22,7 +22,6 @@ from mycroft.configuration import ConfigurationManager
 from mycroft.identity import IdentityManager
 from mycroft.messagebus.client.ws import WebsocketClient
 from mycroft.messagebus.message import Message
-from mycroft.util import str2bool
 
 _config = ConfigurationManager.get().get("pairing_client")
 
@@ -39,7 +38,7 @@ class DevicePairingClient(object):
         self.ws_client = WebsocketClient(host=config.get("host"),
                                          port=config.get("port"),
                                          path=config.get("route"),
-                                         ssl=str2bool(config.get("ssl")))
+                                         ssl=config.get("ssl"))
         self.identity_manager = IdentityManager()
         self.identity = self.identity_manager.identity
         self.pairing_code = (
@@ -48,7 +47,7 @@ class DevicePairingClient(object):
     def on_registration(self, message):
         payload = message.metadata
         identity = self.identity_manager.get()
-        if identity and payload.get("device_id") == identity.device_id:
+        if payload.get("device_id") == identity.device_id:
             identity.token = payload.get('token')
             self.identity_manager.save(identity)
             self.ws_client.close()

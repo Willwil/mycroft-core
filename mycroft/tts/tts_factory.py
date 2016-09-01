@@ -33,7 +33,7 @@ def create():
     """
     Factory method to create a TTS engine based on configuration.
 
-    The configuration file ``defaults.ini`` contains a ``tts`` section with
+    The configuration file ``mycroft.conf`` contains a ``tts`` section with
     the name of a TTS module to be read by this method.
 
     [tts]
@@ -44,8 +44,8 @@ def create():
     logging.basicConfig()
     config = ConfigurationManager.get().get('tts')
     name = config.get('module')
-    lang = config.get(name + '.lang', None)
-    voice = config.get(name + '.voice')
+    lang = config.get(name).get('lang')
+    voice = config.get(name).get('voice')
 
     if name == mimic_tts.NAME:
         tts = mimic_tts.Mimic(lang, voice)

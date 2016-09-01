@@ -79,17 +79,12 @@ class CerberusGoogleProxy(object):
         timer = Stopwatch()
         timer.start()
         identity = IdentityManager().get()
-        headers = {}
-        if identity:
-            headers['Authorization'] = 'Bearer %s:%s' % (
-                identity.device_id, identity.token)
-
+        headers = {'Authorization': 'Bearer ' + identity.token}
         response = requests.post(config.get("proxy_host") +
                                  "/stt/google_v2?language=%s&version=%s"
                                  % (language, self.version),
                                  audio.get_flac_data(),
                                  headers=headers)
-
         if metrics:
             t = timer.stop()
             metrics.timer("mycroft.cerberus.proxy.client.time_s", t)

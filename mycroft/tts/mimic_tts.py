@@ -17,20 +17,19 @@
 
 
 import subprocess
+
 from os.path import join
-import re
 
 from mycroft import MYCROFT_ROOT_PATH
-from mycroft.tts import TTS, TTSValidator
 from mycroft.configuration import ConfigurationManager
+from mycroft.tts import TTS, TTSValidator
 
 __author__ = 'jdorleans'
 
-config = ConfigurationManager.get().get("tts", {})
+config = ConfigurationManager.get().get("tts").get("mimic")
 
 NAME = 'mimic'
-BIN = config.get(
-    "mimic.path", join(MYCROFT_ROOT_PATH, 'mimic', 'bin', 'mimic'))
+BIN = config.get("path", join(MYCROFT_ROOT_PATH, 'mimic', 'bin', 'mimic'))
 
 
 class Mimic(TTS):

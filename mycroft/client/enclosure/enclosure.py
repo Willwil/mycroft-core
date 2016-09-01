@@ -16,15 +16,14 @@
 # along with Mycroft Core.  If not, see <http://www.gnu.org/licenses/>.
 import subprocess
 import sys
+import threading
+import time
 from Queue import Queue
 from alsaaudio import Mixer
 from threading import Thread
 
 import os
 import serial
-import time
-
-import threading
 
 from mycroft.client.enclosure.arduino import EnclosureArduino
 from mycroft.client.enclosure.eyes import EnclosureEyes
@@ -33,10 +32,9 @@ from mycroft.client.enclosure.weather import EnclosureWeather
 from mycroft.configuration import ConfigurationManager
 from mycroft.messagebus.client.ws import WebsocketClient
 from mycroft.messagebus.message import Message
-from mycroft.util import kill, str2bool
 from mycroft.util import play_wav
-from mycroft.util.log import getLogger
 from mycroft.util.audio_test import record
+from mycroft.util.log import getLogger
 
 __author__ = 'aatchison + jdorleans + iward'
 
@@ -200,6 +198,7 @@ class Enclosure:
     """
 
     def __init__(self):
+        self.config = ConfigurationManager.get().get("enclosure")
         self.__init_serial()
         self.client = WebsocketClient()
         self.reader = EnclosureReader(self.serial, self.client)
@@ -211,9 +210,7 @@ class Enclosure:
         self.__register_events()
 
     def setup(self):
-        must_upload = self.config.get('must_upload')
-        if must_upload is not None and str2bool(must_upload):
-            ConfigurationManager.set('enclosure', 'must_upload', False)
+        if self.config.get('auto_update'):
             time.sleep(5)
             self.client.emit(Message("speak", metadata={
                 'utterance': "I am currently uploading to the arduino."}))
@@ -223,9 +220,7 @@ class Enclosure:
             self.client.emit(Message("speak", metadata={
                 'utterance': "Arduino programing complete."}))
 
-        must_start_test = self.config.get('must_start_test')
-        if must_start_test is not None and str2bool(must_start_test):
-            ConfigurationManager.set('enclosure', 'must_start_test', False)
+        if self.config.get('must_start_test'):
             time.sleep(0.5)  # Ensure arduino has booted
             self.client.emit(Message("speak", metadata={
                 'utterance': "Begining hardware self test."}))
@@ -242,10 +237,9 @@ class Enclosure:
 
     def __init_serial(self):
         try:
-            self.config = ConfigurationManager.get().get("enclosure")
             self.port = self.config.get("port")
-            self.rate = int(self.config.get("rate"))
-            self.timeout = int(self.config.get("timeout"))
+            self.rate = self.config.get("rate")
+            self.timeout = self.config.get("timeout")
             self.serial = serial.serial_for_url(
                 url=self.port, baudrate=self.rate, timeout=self.timeout)
             LOGGER.info(

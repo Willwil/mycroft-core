@@ -36,9 +36,9 @@ from mycroft.util.log import getLogger
 
 logger = getLogger(__name__)
 
-core_config = ConfigurationManager.get().get('core')
-speech_config = ConfigurationManager.get().get('speech_client')
-listener_config = ConfigurationManager.get().get('listener')
+core_config = ConfigurationManager.get()
+speech_config = core_config.get('speech_client')
+listener_config = core_config.get('listener')
 
 
 class AudioProducer(threading.Thread):
@@ -202,8 +202,8 @@ class RecognizerLoopState(object):
 
 
 class RecognizerLoop(pyee.EventEmitter):
-    def __init__(self, channels=int(speech_config.get('channels')),
-                 rate=int(speech_config.get('sample_rate')),
+    def __init__(self, channels=speech_config.get('channels'),
+                 rate=speech_config.get('sample_rate'),
                  device_index=None,
                  lang=core_config.get('lang')):
         pyee.EventEmitter.__init__(self)

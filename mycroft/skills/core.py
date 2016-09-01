@@ -45,7 +45,7 @@ logger = getLogger(__name__)
 
 
 def load_vocab_from_file(path, vocab_type, emitter):
-    if(path.endswith('.voc')):
+    if (path.endswith('.voc')):
         with open(path, 'r') as voc_file:
             for line in voc_file.readlines():
                 parts = line.strip().split("|")
@@ -62,7 +62,7 @@ def load_vocab_from_file(path, vocab_type, emitter):
 
 
 def load_regex_from_file(path, emitter):
-    if(path.endswith('.rx')):
+    if (path.endswith('.rx')):
         with open(path, 'r') as reg_file:
             for line in reg_file.readlines():
                 re.compile(line.strip())
@@ -145,7 +145,7 @@ def load_skills(emitter, skills_root=SKILLS_BASEDIR):
 
     for skill in skills:
         if (skill['name'] not in PRIMARY_SKILLS and
-                skill['name'] not in BLACKLISTED_SKILLS):
+                    skill['name'] not in BLACKLISTED_SKILLS):
             load_skill(skill, emitter)
 
 
@@ -158,9 +158,8 @@ class MycroftSkill(object):
     def __init__(self, name, emitter=None):
         self.name = name
         self.bind(emitter)
-        config = ConfigurationManager.get()
-        self.config = config.get(name)
-        self.config_core = config.get('core')
+        self.config_core = ConfigurationManager.get()
+        self.config = self.config_core.get(name)
         self.dialog_renderer = None
         self.file_system = FileSystemAccess(join('skills', name))
         self.registered_intents = []
@@ -181,7 +180,8 @@ class MycroftSkill(object):
 
     def __register_stop(self):
         self.stop_time = time.time()
-        self.stop_threshold = self.config_core.get('stop_threshold')
+        self.stop_threshold = self.config_core.get("skills").get(
+            'stop_threshold')
         self.emitter.on('mycroft.stop', self.__handle_stop)
 
     def detach(self):

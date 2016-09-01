@@ -19,12 +19,12 @@
 import json
 import threading
 import time
+
 import requests
 
-from mycroft.util import str2bool
-from mycroft.util.log import getLogger
 from mycroft.configuration import ConfigurationManager
 from mycroft.session import SessionManager
+from mycroft.util.log import getLogger
 from mycroft.util.setup_base import get_version
 
 config = ConfigurationManager.get().get('metrics_client')
@@ -56,6 +56,7 @@ class MetricsAggregator(object):
     MetricsAggregator is not threadsafe, and multiple clients writing the
     same metric "concurrently" may result in data loss.
     """
+
     def __init__(self):
         self._counters = {}
         self._timers = {}
@@ -103,13 +104,14 @@ class MetricsAggregator(object):
 
             def publish():
                 publisher.publish(payload)
+
             threading.Thread(target=publish).start()
 
 
 class MetricsPublisher(object):
     def __init__(self,
                  url=config.get("url"),
-                 enabled=str2bool(config.get("enabled"))):
+                 enabled=config.get("enabled")):
         self.url = url
         self.enabled = enabled
 

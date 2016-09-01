@@ -1,13 +1,11 @@
 import requests
 
-from mycroft.configuration import ConfigurationManager
 from mycroft.identity import IdentityManager
 
 
 class Api(object):
-    def __init__(self, path):
+    def __init__(self, path, config):
         self.path = path
-        config = ConfigurationManager.get()
         config_server = config.get("server")
         self.url = config_server.get("url")
         self.version = config_server.get("version")
@@ -24,14 +22,15 @@ class Api(object):
         headers = params.get("headers", {})
         self.add_content_type(headers)
         self.add_authorization(headers)
+        params["headers"] = headers
         return headers
 
     def add_content_type(self, headers):
-        if not headers["Content-Type"]:
+        if not headers.__contains__("Content-Type"):
             headers["Content-Type"] = "application/json"
 
     def add_authorization(self, headers):
-        if not headers["Authorization"]:
+        if not headers.__contains__("Authorization"):
             headers["Authorization"] = "Bearer " + self.identity.token
 
     def build_body(self, params):
@@ -40,6 +39,7 @@ class Api(object):
             for k, v in body:
                 if v == "":
                     body[k] = None
+        params["body"] = body
         return body
 
     def build_url(self, params):
@@ -49,8 +49,8 @@ class Api(object):
 
 
 class DeviceApi(Api):
-    def __init__(self):
-        super(DeviceApi, self).__init__("device")
+    def __init__(self, config):
+        super(DeviceApi, self).__init__("device", config)
 
     def find_setting(self):
         params = {"path": "/" + self.identity.device_id + "/setting"}
