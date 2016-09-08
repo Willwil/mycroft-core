@@ -82,7 +82,7 @@ class CerberusWolframAlphaClient(object):
         """
         Query Wolfram|Alpha with query using the v2.0 API
         """
-        identity = IdentityManager().get()
+        identity = IdentityManager.get()
         query = urllib.parse.urlencode(dict(input=query))
         url = 'https://cerberus.mycroft.ai/wolframalpha/v2/query?' + query
         headers = {'Authorization': 'Bearer ' + identity.token}
